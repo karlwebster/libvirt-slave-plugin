@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
+import java.util.logging.Level;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -55,11 +56,11 @@ public class VirtualMachineSlave extends Slave {
     public VirtualMachineSlave(String name, String nodeDescription, String remoteFS, String numExecutors,
             Mode mode, String labelString, VirtualMachineLauncher launcher, ComputerLauncher delegateLauncher,
             RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties,
-            String hypervisorDescription, String virtualMachineName, String snapshotName, int startupWaitingPeriodSeconds)
+            String hypervisorDescription, String virtualMachineName, String snapshotName, int startupWaitingPeriodSeconds, boolean launchSupportForced)
             throws
             Descriptor.FormException, IOException {
         super(name, nodeDescription, remoteFS, Util.tryParseNumber(numExecutors, 1).intValue(), mode, labelString,
-                launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescription, virtualMachineName, snapshotName, startupWaitingPeriodSeconds) : launcher,
+                launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescription, virtualMachineName, snapshotName, startupWaitingPeriodSeconds, launchSupportForced ? Boolean.TRUE : null) : launcher,
                 retentionStrategy, nodeProperties);        
         this.hypervisorDescription = hypervisorDescription;
         this.virtualMachineName = virtualMachineName;
@@ -81,6 +82,15 @@ public class VirtualMachineSlave extends Slave {
 
     public int getStartupWaitingPeriodSeconds() {
         return startupWaitingPeriodSeconds;
+    }
+
+    public boolean isLaunchSupportForced() {
+    	return ((VirtualMachineLauncher) getLauncher()).getOverrideLaunchSupported() == Boolean.TRUE;
+    }
+
+    public void setLaunchSupportForced(boolean slaveLaunchesOnBootup) {
+    	((VirtualMachineLauncher) getLauncher()).
+    			setOverrideLaunchSupported(slaveLaunchesOnBootup ? Boolean.TRUE : null);
     }
 
     public ComputerLauncher getDelegateLauncher() {
@@ -114,6 +124,7 @@ public class VirtualMachineSlave extends Slave {
         private String hypervisorDescription;
         private String virtualMachineName;
         private String snapshotName;
+        private boolean launchSupportForced = true;
         
         public DescriptorImpl() {            
             load();
@@ -165,6 +176,10 @@ public class VirtualMachineSlave extends Slave {
 
         public String getSnapshotName() {
             return snapshotName;
+        }
+
+        public boolean isLaunchSupportForced() {
+        	return launchSupportForced;
         }
         
         private Hypervisor getHypervisorByDescription (String hypervisorDescription) {

@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
+import java.lang.Boolean;
 
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.libvirt.Domain;
@@ -47,15 +48,17 @@ public class VirtualMachineLauncher extends ComputerLauncher {
     private String virtualMachineName;
     private String snapshotName;
     private final int WAIT_TIME_MS;
+    private Boolean overrideLaunchSupported;
     
     @DataBoundConstructor
-    public VirtualMachineLauncher(ComputerLauncher delegate, String hypervisorDescription, String virtualMachineName, String snapshotName, int waitingTimeSecs) {
+    public VirtualMachineLauncher(ComputerLauncher delegate, String hypervisorDescription, String virtualMachineName, String snapshotName, int waitingTimeSecs, Boolean overrideLaunchSupported) {
         super();
         this.delegate = delegate;
         this.virtualMachineName = virtualMachineName;
         this.snapshotName = snapshotName;
         this.hypervisorDescription = hypervisorDescription;
         this.WAIT_TIME_MS = waitingTimeSecs*1000;
+        this.overrideLaunchSupported = overrideLaunchSupported;
         lookupVirtualMachineHandle();
     }
 
@@ -91,9 +94,22 @@ public class VirtualMachineLauncher extends ComputerLauncher {
         return virtualMachineName;
     }
 
+    public Boolean getOverrideLaunchSupported() {
+        return overrideLaunchSupported;
+    }
+
+    public void setOverrideLaunchSupported(Boolean overrideLaunchSupported) {
+    		this.overrideLaunchSupported = overrideLaunchSupported;
+    }
+
     @Override
     public boolean isLaunchSupported() {
-        return delegate.isLaunchSupported();
+    	if (overrideLaunchSupported == null)
+           	return delegate.isLaunchSupported();
+    	else {
+    		LOGGER.log(Level.INFO, "Launch support is overriden to always return: " + overrideLaunchSupported);
+    		return overrideLaunchSupported;
+    	}
     }
 
     public Hypervisor findOurHypervisorInstance() throws RuntimeException {
@@ -207,4 +223,5 @@ public class VirtualMachineLauncher extends ComputerLauncher {
     public Descriptor<ComputerLauncher> getDescriptor() {
     	throw new UnsupportedOperationException();
     }
+
 }

@@ -54,8 +54,8 @@
                                  selected="${it.delegateLauncher.descriptor==d}"
                                  title="${d.displayName}">
                 <j:set var="descriptor" value="${d}"/>
-                <j:set var="instance"
-                       value="${it.delegateLauncher.descriptor==d ? it.delegateLauncher : null}"/>
+                <j:set var="descriptor" value="${d}"/>
+                	<j:set var="instance" value="${it.delegateLauncher.descriptor==d ? it.delegateLauncher : null}"/>
                 <tr>
                     <td>
                         <input type="hidden" name="stapler-class" value="${d.clazz.name}"/>
@@ -65,6 +65,12 @@
             </f:dropdownListBlock>
         </j:forEach>
     </f:dropdownList>
+
+    <f:entry title="${%Force VM launch}"
+			 description="${%VMs can always be switched on, even if direct support is missing in the secondary launch option.}"
+			help="/plugin/libvirt-slave/help-libvirt-launchSupportForced.html">
+		<f:checkbox field="launchSupportForced"/>
+	</f:entry>
 
     <!-- pointless to show this if there's only one option, which is the default -->
     <j:if test="${h.getRetentionStrategyDescriptors().size() gt 1}">
