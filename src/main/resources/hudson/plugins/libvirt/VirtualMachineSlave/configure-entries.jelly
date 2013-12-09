@@ -72,6 +72,12 @@
 		<f:checkbox field="launchSupportForced"/>
 	</f:entry>
 
+    <f:entry title="${%Force VM Reboot}"
+    			 description="${%VM will always be rebooted after a job has been ran.}"
+    			help="/plugin/libvirt-slave/help-libvirt-forceSlaveRebootGlobal.html">
+    		<f:checkbox field="forceSlaveRebootGlobal"/>
+    </f:entry>
+
     <!-- pointless to show this if there's only one option, which is the default -->
     <j:if test="${h.getRetentionStrategyDescriptors().size() gt 1}">
         <f:dropdownList name="slave.retentionStrategy" title="${%Availability}"

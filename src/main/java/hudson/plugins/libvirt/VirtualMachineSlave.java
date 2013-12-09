@@ -51,21 +51,25 @@ public class VirtualMachineSlave extends Slave {
     private String 				snapshotName;
     private String 				virtualMachineName;
     private int 				startupWaitingPeriodSeconds;
+    private boolean             forceSlaveRebootGlobal;
 
     @DataBoundConstructor
     public VirtualMachineSlave(String name, String nodeDescription, String remoteFS, String numExecutors,
             Mode mode, String labelString, VirtualMachineLauncher launcher, ComputerLauncher delegateLauncher,
             RetentionStrategy retentionStrategy, List<? extends NodeProperty<?>> nodeProperties,
-            String hypervisorDescription, String virtualMachineName, String snapshotName, int startupWaitingPeriodSeconds, boolean launchSupportForced)
+            String hypervisorDescription, String virtualMachineName, String snapshotName, int startupWaitingPeriodSeconds, boolean launchSupportForced,
+            boolean forceSlaveRebootGlobal)
             throws
             Descriptor.FormException, IOException {
         super(name, nodeDescription, remoteFS, Util.tryParseNumber(numExecutors, 1).intValue(), mode, labelString,
-                launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescription, virtualMachineName, snapshotName, startupWaitingPeriodSeconds, launchSupportForced ? Boolean.TRUE : null) : launcher,
+                launcher == null ? new VirtualMachineLauncher(delegateLauncher, hypervisorDescription, virtualMachineName, snapshotName, startupWaitingPeriodSeconds, launchSupportForced ? Boolean.TRUE : null,
+                        forceSlaveRebootGlobal ? Boolean.TRUE : null) : launcher,
                 retentionStrategy, nodeProperties);        
         this.hypervisorDescription = hypervisorDescription;
         this.virtualMachineName = virtualMachineName;
         this.snapshotName = snapshotName;
         this.startupWaitingPeriodSeconds = startupWaitingPeriodSeconds;
+        this.forceSlaveRebootGlobal = forceSlaveRebootGlobal;
     }
 
     public String getHypervisorDescription() {
@@ -91,6 +95,10 @@ public class VirtualMachineSlave extends Slave {
     public void setLaunchSupportForced(boolean slaveLaunchesOnBootup) {
     	((VirtualMachineLauncher) getLauncher()).
     			setOverrideLaunchSupported(slaveLaunchesOnBootup ? Boolean.TRUE : null);
+    }
+
+    public boolean isForceSlaveRebootGlobal(){
+        return forceSlaveRebootGlobal;
     }
 
     public ComputerLauncher getDelegateLauncher() {
@@ -125,6 +133,7 @@ public class VirtualMachineSlave extends Slave {
         private String virtualMachineName;
         private String snapshotName;
         private boolean launchSupportForced = true;
+        private boolean forceSlaveRebootGlobal = true;
         
         public DescriptorImpl() {            
             load();
@@ -180,6 +189,10 @@ public class VirtualMachineSlave extends Slave {
 
         public boolean isLaunchSupportForced() {
         	return launchSupportForced;
+        }
+
+        public boolean isForceSlaveRebootGlobal() {
+            return forceSlaveRebootGlobal;
         }
         
         private Hypervisor getHypervisorByDescription (String hypervisorDescription) {

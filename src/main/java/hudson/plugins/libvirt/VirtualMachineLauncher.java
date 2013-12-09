@@ -49,9 +49,10 @@ public class VirtualMachineLauncher extends ComputerLauncher {
     private String snapshotName;
     private final int WAIT_TIME_MS;
     private Boolean overrideLaunchSupported;
+    private Boolean forceSlaveRebootGlobal;
     
     @DataBoundConstructor
-    public VirtualMachineLauncher(ComputerLauncher delegate, String hypervisorDescription, String virtualMachineName, String snapshotName, int waitingTimeSecs, Boolean overrideLaunchSupported) {
+    public VirtualMachineLauncher(ComputerLauncher delegate, String hypervisorDescription, String virtualMachineName, String snapshotName, int waitingTimeSecs, Boolean overrideLaunchSupported, Boolean forceSlaveRebootGlobal) {
         super();
         this.delegate = delegate;
         this.virtualMachineName = virtualMachineName;
@@ -59,6 +60,7 @@ public class VirtualMachineLauncher extends ComputerLauncher {
         this.hypervisorDescription = hypervisorDescription;
         this.WAIT_TIME_MS = waitingTimeSecs*1000;
         this.overrideLaunchSupported = overrideLaunchSupported;
+        this.forceSlaveRebootGlobal = forceSlaveRebootGlobal;
         lookupVirtualMachineHandle();
     }
 
@@ -100,6 +102,14 @@ public class VirtualMachineLauncher extends ComputerLauncher {
 
     public void setOverrideLaunchSupported(Boolean overrideLaunchSupported) {
     		this.overrideLaunchSupported = overrideLaunchSupported;
+    }
+
+    public Boolean getForceSlaveRebootGlobal() {
+        return forceSlaveRebootGlobal;
+    }
+
+    public void setForceSlaveRebootGlobal(Boolean forceSlaveRebootGlobal) {
+        this.forceSlaveRebootGlobal = forceSlaveRebootGlobal;
     }
 
     @Override
