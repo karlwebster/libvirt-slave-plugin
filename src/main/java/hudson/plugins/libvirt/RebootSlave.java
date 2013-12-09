@@ -32,53 +32,40 @@ public class RebootSlave extends RunListener<Run> {
 
             if (launcher instanceof ComputerLauncher){
                 VirtualMachineLauncher slaveLauncher = (VirtualMachineLauncher) launcher;
-                Hypervisor hypervisor = slaveLauncher.findOurHypervisorInstance();
 
                 if(slaveLauncher.getForceSlaveRebootGlobal())
                 {
                     local_logger.info("Reboot-Logger: Force reboot set.");
+                    String vmName = slaveLauncher.getVirtualMachineName();
+                    local_logger.info("Reboot-Logger: Preparing to reboot " + vmName + ".");
 
                     try{
-                        Map<String, Domain> domains = hypervisor.getDomains();
-
-                        String vmName = slaveLauncher.getVirtualMachineName();
-                        Domain domain = domains.get(vmName);
-                        if (domain != null) {
-                            local_logger.info("Reboot-Logger: Preparing to reboot " + vmName + ".");
-
+                        Computer computer = slave.getComputer();
+                        try {
+                            computer.getChannel().syncLocalIO();
                             try{
-                                Computer computer = slave.getComputer();
-                                try {
-                                    computer.getChannel().syncLocalIO();
-                                    try{
-                                        computer.getChannel().close();
-                                        computer.disconnect(null);
-                                        try{
-                                            computer.waitUntilOffline();
+                                computer.getChannel().close();
+                                computer.disconnect(null);
+                                try{
+                                    computer.waitUntilOffline();
 
-                                            local_logger.info("Reboot-Logger: VM: " + vmName + " has been shut down.");
+                                    local_logger.info("Reboot-Logger: VM: " + vmName + " has been shut down.");
 
-                                        }
-                                        catch (InterruptedException e){
-                                            local_logger.info("Reboot-Logger: Interrupted while waiting for computer to be offline: " + e);
-                                        }
-                                    }
-                                    catch (IOException e){
-                                        local_logger.info("Reboot-Logger: Error closing channel: " + e);
-                                    }
                                 }
                                 catch (InterruptedException e){
-                                    local_logger.info("Reboot-Logger: Interrupted while syncing IO: " + e);
+                                    local_logger.info("Reboot-Logger: Interrupted while waiting for computer to be offline: " + e);
                                 }
                             }
-                            catch(Exception e){
-                                local_logger.info("Reboot-Logger: Error whilst getting Computer: " + e);
+                            catch (IOException e){
+                                local_logger.info("Reboot-Logger: Error closing channel: " + e);
                             }
-                        } else {
-                            local_logger.info("Reboot-Logger: No VM named " + vmName);
                         }
-                    } catch (LibvirtException e) {
-                        local_logger.info("Reboot-Logger: Can't get VM domains: " + e);
+                        catch (InterruptedException e){
+                            local_logger.info("Reboot-Logger: Interrupted while syncing IO: " + e);
+                        }
+                    }
+                    catch(Exception e){
+                        local_logger.info("Reboot-Logger: Error whilst getting Computer: " + e);
                     }
                 }
                 else{
