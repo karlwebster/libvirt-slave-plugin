@@ -8,11 +8,8 @@ import hudson.model.listeners.RunListener;
 import hudson.slaves.ComputerLauncher;
 
 import java.io.IOException;
-import java.util.Map;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
-import org.libvirt.Domain;
-import org.libvirt.LibvirtException;
 
 // Supertype doesn't declare generic types, can't do anything to fix that and still be able to override.
 @SuppressWarnings("rawtypes")
